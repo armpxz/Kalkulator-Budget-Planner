@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Personal Financial</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#ffffff; --ink:#1f1d1a; --sub:#6b6560; --line:#e7e3dd;
+  --accent:#2d6a4f; --accent2:#d98e04; --danger:#b3261e;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17160f; --card:#211f18; --ink:#f3f1ec; --sub:#a39d93; --line:#3a362c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17160f; --card:#211f18; --ink:#f3f1ec; --sub:#a39d93; --line:#3a362c;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Georgia','Iowan Old Style',serif;
+  padding:24px 16px 60px; min-height:100%;
+  overflow-x:hidden;
+}
+.wrap{max-width:640px; margin:0 auto; width:100%;}
+.topbar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  max-width:640px; margin:0 auto 20px; padding:10px 2px;
+  background:var(--bg);
+}
+.layout{display:block;}
+@media (min-width:860px){
+  body{padding:32px 24px 60px;}
+  .wrap, .topbar{max-width:900px;}
+  .layout{display:grid; grid-template-columns:1.05fr 0.95fr; gap:18px; align-items:start;}
+  .layout .card{margin-bottom:0;}
+}
+@media (max-width:380px){
+  .row{gap:6px;}
+  .row input[type=text]:not(.rp){flex-basis:100%;}
+  .pct{width:50px !important;}
+  .rp{width:100px !important;}
+}
+.brand{display:flex; align-items:center; gap:8px; font-weight:600; font-size:1rem;}
+.brand .logo{font-size:1.15rem;}
+.nav{display:flex; gap:4px;}
+.nav a{
+  text-decoration:none; font-size:0.85rem; color:var(--sub);
+  padding:6px 12px; border-radius:7px;
+}
+.nav a.active{background:var(--card); color:var(--ink); border:1px solid var(--line); font-weight:600;}
+h1{font-size:clamp(1.3rem, 4vw, 1.75rem); margin:0 0 4px; font-weight:600;}
+.sub{color:var(--sub); font-size:0.9rem; margin:0 0 20px;}
+.card{min-width:0; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:16px;}
+label{font-size:0.8rem; color:var(--sub); display:block; margin-bottom:6px;}
+input[type=number], input[type=text]{
+  width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+  background:var(--bg); color:var(--ink); font-family:inherit; font-size:1rem;
+}
+input[type=number]{ -moz-appearance:textfield; appearance:textfield; }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{
+  -webkit-appearance:none; margin:0;
+}
+.row{display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;}
+.row input[type=text]{flex:1 1 120px; min-width:100px;}
+.row input[type=number]{flex:1;}
+.pct{width:56px !important; flex:none !important; text-align:right;}
+.rp{width:120px !important; flex:none !important; text-align:right;}
+.row .unit{color:var(--sub); font-size:0.8rem;}
+
+.bar-track{height:10px; border-radius:6px; background:var(--line); overflow:hidden; display:flex; margin:14px 0 6px;}
+.bar-seg{height:100%;}
+.legend{display:flex; flex-wrap:wrap; gap:8px 16px; font-size:0.82rem; color:var(--sub);}
+.legend span.dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px;}
+.result-row{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:0.95rem;}
+.result-row:last-child{border-bottom:none;}
+.result-row .amt{font-weight:600;}
+.total-pct{font-size:0.85rem; margin-top:8px;}
+.total-pct.over{color:var(--danger);}
+.total-pct.ok{color:var(--accent);}
+button{
+  font-family:inherit; cursor:pointer; border:none; border-radius:8px; padding:9px 14px; font-size:0.88rem;
+}
+.btn-add{background:transparent; border:1px dashed var(--line); color:var(--sub); width:100%; margin-top:4px;}
+.btn-del{background:transparent; color:var(--danger); padding:4px 8px; font-size:1rem;}
+.presets{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.presets button{background:var(--card); border:1px solid var(--line); color:var(--ink);}
+.presets button:hover{border-color:var(--accent);}
+.footnote{font-size:0.75rem; color:var(--sub); text-align:center; margin-top:20px;}
+.credit{font-size:0.75rem; color:var(--sub); text-align:center; margin-top:8px;}
+.credit .heart{color:var(--danger);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="logo">💰</span> Personal Financial</div>
+  <nav class="nav">
+    <a href="#" class="active">Home</a>
+  </nav>
+</div>
+<div class="wrap" id="homeView">
+  <h1>Personal Financial</h1>
+  <p class="sub">Masukkan gaji bulanan, atur persentase tiap kategori, lihat hasilnya.</p>
+
+  <div class="card">
+    <label for="gaji">Gaji bulanan (Rp)</label>
+    <input type="text" inputmode="numeric" id="gaji" placeholder="contoh: 7.000.000" oninput="formatRpInput(this)">
+  </div>
+
+  <div class="presets">
+    <button onclick="applyPreset('5030')">50/30/20 — Elizabeth Warren</button>
+    <button onclick="applyPreset('6jars')">6 Jars — T. Harv Eker</button>
+    <button onclick="applyPreset('702010')">70/20/10 Rule</button>
+  </div>
+  <div class="presets">
+    <button onclick="applyPreset('risk-konservatif')">🛡️ Konservatif</button>
+    <button onclick="applyPreset('risk-moderat')">⚖️ Moderat</button>
+    <button onclick="applyPreset('risk-agresif')">🚀 Agresif</button>
+  </div>
+
+  <div class="layout">
+    <div class="col-left">
+      <div class="card">
+        <div id="catList"></div>
+        <button class="btn-add" onclick="addCategory()">+ Tambah kategori</button>
+        <div id="totalPct" class="total-pct"></div>
+        <div class="bar-track" id="barTrack"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="card">
+        <div id="results"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="credit">Made with <span class="heart">♥</span> by Aliffatur Rifki</p>
+</div>
+
+<script>
+const COLORS = ['#2d6a4f','#d98e04','#4361ee','#b3261e','#7b2cbf','#0f8b8d','#e07a5f','#588157'];
+
+const PRESETS = {
+  '5030': [
+    {name:'Kebutuhan (Needs)', pct:50},
+    {name:'Keinginan (Wants)', pct:30},
+    {name:'Tabungan & Utang (Savings)', pct:20}
+  ],
+  '6jars': [
+    {name:'Kebutuhan Pokok (NEC)', pct:55},
+    {name:'Kebebasan Finansial (FFA)', pct:10},
+    {name:'Tabungan Jangka Panjang (LTSS)', pct:10},
+    {name:'Pendidikan Diri (EDU)', pct:10},
+    {name:'Bersenang-senang (PLAY)', pct:10},
+    {name:'Beramal (GIVE)', pct:5}
+  ],
+  '702010': [
+    {name:'Pengeluaran Hidup', pct:70},
+    {name:'Tabungan & Investasi', pct:20},
+    {name:'Bayar Utang / Donasi', pct:10}
+  ],
+  'risk-konservatif': [
+    {name:'Kebutuhan Pokok', pct:55},
+    {name:'Dana Darurat', pct:20},
+    {name:'Investasi Rendah Risiko (Deposito/Obligasi)', pct:10},
+    {name:'Tabungan', pct:10},
+    {name:'Hiburan', pct:5}
+  ],
+  'risk-moderat': [
+    {name:'Kebutuhan Pokok', pct:45},
+    {name:'Dana Darurat', pct:15},
+    {name:'Investasi Campuran (Reksadana)', pct:20},
+    {name:'Tabungan', pct:10},
+    {name:'Hiburan', pct:10}
+  ],
+  'risk-agresif': [
+    {name:'Kebutuhan Pokok', pct:35},
+    {name:'Investasi Risiko Tinggi (Saham/Kripto)', pct:35},
+    {name:'Dana Darurat', pct:10},
+    {name:'Tabungan', pct:10},
+    {name:'Hiburan', pct:10}
+  ]
+};
+
+let state = { gaji: 0, cats: PRESETS['5030'].map(c=>({...c})) };
+
+async function load(){
+  try{
+    const raw = localStorage.getItem('budgetGajiState');
+    if(raw) state = JSON.parse(raw);
+  }catch(e){ console.warn('load failed', e); }
+  document.getElementById('gaji').value = state.gaji ? state.gaji.toLocaleString('id-ID') : '';
+  render();
+}
+
+function save(){
+  try{ localStorage.setItem('budgetGajiState', JSON.stringify(state)); }
+  catch(e){ console.warn('save failed', e); }
+}
+
+function applyPreset(key){
+  state.cats = PRESETS[key].map(c=>({...c}));
+  save(); render();
+}
+
+function addCategory(){
+  state.cats.push({name:'Kategori Baru', pct:0});
+  save(); render();
+}
+
+function updateCat(i, field, val){
+  if(field==='pct') val = Math.max(0, Math.min(100, Number(val)||0));
+  state.cats[i][field] = val;
+  save(); render();
+}
+
+function parseRp(val){
+  return Math.max(0, Number(String(val).replace(/[^0-9]/g,''))||0);
+}
+
+function formatRpInput(el){
+  const num = parseRp(el.value);
+  const cursorFromEnd = el.value.length - el.selectionStart;
+  el.value = num ? num.toLocaleString('id-ID') : '';
+  const pos = Math.max(0, el.value.length - cursorFromEnd);
+  el.setSelectionRange(pos, pos);
+}
+
+function updateCatRp(i, val){
+  const rp = parseRp(val);
+  if(state.gaji>0){
+    state.cats[i].pct = Math.round((rp/state.gaji)*10000)/100;
+  }
+  save(); render();
+}
+
+function delCat(i){
+  state.cats.splice(i,1);
+  save(); render();
+}
+
+function fmtRp(n){
+  return 'Rp' + Math.round(n).toLocaleString('id-ID');
+}
+
+function render(){
+  state.gaji = parseRp(document.getElementById('gaji').value);
+
+  const list = document.getElementById('catList');
+  list.innerHTML = '';
+  state.cats.forEach((c,i)=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    const rpVal = state.gaji>0 ? Math.round(state.gaji*(Number(c.pct||0)/100)) : '';
+    row.innerHTML = `
+      <input type="text" value="${c.name.replace(/"/g,'&quot;')}" onchange="updateCat(${i},'name',this.value)">
+      <input type="number" class="pct" value="${c.pct}" min="0" max="100" onchange="updateCat(${i},'pct',this.value)">
+      <span class="unit">%</span>
+      <input type="text" inputmode="numeric" class="rp" value="${rpVal!=='' ? rpVal.toLocaleString('id-ID') : ''}" placeholder="Rp" onchange="updateCatRp(${i},this.value)" oninput="formatRpInput(this)">
+      <button class="btn-del" onclick="delCat(${i})" aria-label="Hapus">✕</button>
+    `;
+    list.appendChild(row);
+  });
+
+  const total = state.cats.reduce((s,c)=>s+Number(c.pct||0),0);
+  const totalEl = document.getElementById('totalPct');
+  totalEl.textContent = `Total: ${total}%` + (total>100 ? ' (melebihi 100%)' : total<100 ? ` (sisa ${100-total}% belum dialokasikan)` : ' ✓');
+  totalEl.className = 'total-pct ' + (total>100 ? 'over' : 'ok');
+
+  const track = document.getElementById('barTrack');
+  track.innerHTML = '';
+  const legend = document.getElementById('legend');
+  legend.innerHTML = '';
+  state.cats.forEach((c,i)=>{
+    const color = COLORS[i % COLORS.length];
+    const seg = document.createElement('div');
+    seg.className = 'bar-seg';
+    seg.style.width = Math.min(c.pct, 100) + '%';
+    seg.style.background = color;
+    track.appendChild(seg);
+
+    const leg = document.createElement('span');
+    leg.innerHTML = `<span class="dot" style="background:${color}"></span>${c.name}`;
+    legend.appendChild(leg);
+  });
+
+  const results = document.getElementById('results');
+  results.innerHTML = '';
+  if(state.gaji<=0){
+    results.innerHTML = '<p style="color:var(--sub); font-size:0.9rem;">Masukkan jumlah gaji untuk melihat rincian alokasi.</p>';
+  } else {
+    state.cats.forEach(c=>{
+      const amt = state.gaji * (Number(c.pct||0)/100);
+      const r = document.createElement('div');
+      r.className = 'result-row';
+      r.innerHTML = `<span>${c.name}</span><span class="amt">${fmtRp(amt)}</span>`;
+      results.appendChild(r);
+    });
+  }
+
+  save();
+}
+
+document.getElementById('gaji').addEventListener('input', render);
+load();
+</script>
+</body>
+</html>
